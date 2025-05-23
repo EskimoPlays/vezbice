@@ -26,8 +26,7 @@ namespace RazmestanjeLoptica
             }
         }
 
-        int movingBallIndex;
-        bool ballIsMoving = false;
+        private Ball? _lastMovingBall;
         private List<Ball> balls;
         private Point dragOffset;
 
@@ -37,33 +36,32 @@ namespace RazmestanjeLoptica
 
         private void Form1_MouseDown(object sender, MouseEventArgs e)
         {
-            movingBallIndex = balls.FindIndex(ball => ball.Contains(e.Location));
-            if (movingBallIndex == -1) return;
-            ballIsMoving = true;
+            _lastMovingBall = balls.Find(ball => ball.Contains(e.Location));
+            if (_lastMovingBall is null) return;
 
-            Point center = balls[movingBallIndex].Center;
+            Point center = _lastMovingBall.Center;
             dragOffset = new Point(e.X - center.X, e.Y - center.Y);
             SwapColorTimer.Enabled = true;
         }
 
         private void Form1_MouseUp(object sender, MouseEventArgs e)
         {
-            ballIsMoving = false;
+            _lastMovingBall = null;
             SwapColorTimer.Enabled = false;
         }
 
         private void Form1_MouseMove(object sender, MouseEventArgs e)
         {
-            if (!ballIsMoving) return;
+            if (_lastMovingBall is null) return;
             Point newCenter = new(e.X - dragOffset.X, e.Y - dragOffset.Y);
-            balls[movingBallIndex].Move(newCenter);
+            _lastMovingBall.Move(newCenter);
 
             Invalidate();
         }
 
         private void SwapColorTimer_Tick(object sender, EventArgs e)
         {
-            balls[movingBallIndex].ChangeRColor();
+            _lastMovingBall?.ChangeRColor();
         }
     }
 }
